@@ -17,7 +17,6 @@ def fetch_threads(thread_id):
   resp.raise_for_status
   return resp.json() 
 
-
 if __name__ == "__main__":
   for t in find_hiring_threads():
     thread = fetch_threads(t["objectID"])
