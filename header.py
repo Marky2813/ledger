@@ -13,14 +13,13 @@ def extract_headers(data):
       "sales", "systems", "infra", "infrastructure", "market", 
       "engineers", "developers", "scientists", "designers", "managers"
    }
-
-   counted_roles = 0
    extract_headers = []
    ambiguous_headers = []
    for d in data:  
       if "<p>" in d["text"] and "|" in d["text"]: 
          # extract the header and put it in the extract_headers array
-            header = d["text"].split("<p>")[0] or d["text"].split("\n")[0]
+            header = d["text"].split("<p>", 1)[0] or d["text"].split("\n", 1)[0]
+            body = d["text"].split("<p>", 1)[1].lower() or d["text"].split("\n", 1)[1].lower()
             header = html.unescape(header)
             header = header.split("|")
             current = {
