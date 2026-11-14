@@ -1,6 +1,12 @@
 import ollama 
+import json
 from pydantic import BaseModel 
 from typing import Literal, Optional
+import os
+from anthropic import Anthropic
+
+client = Anthropic(
+)
 
 class JobPosting(BaseModel):
   skills:list[str]
@@ -8,14 +14,34 @@ class JobPosting(BaseModel):
   india_evidence:Optional[str]
 
 
-SYSTEM_PROMPT="""You extract structured data from Hacker News "Who is Hiring" posts.
-Rules:
-- Use only what the post says. If a field isn't stated, use null. Never guess.
-- skills: a list of skills required for the job like python, javascript, react, mongoDB, etc. Skills should be technologies and not professions like software engineering 
-- india_eligible: "yes" only if the post allows remote worldwide, mentions India,
-  or a region that includes India. "no" if it restricts to other countries/regions
-  or requires work authorization elsewhere. Otherwise "unclear".
-- india_evidence: copy the exact phrase you based india_eligible on."""
+SYSTEM_PROMPT="""You extract structured data from Hacker News "Who is Hiring" job posts.
+skills:
+- A skill is a technology: a programming language, framework, library,
+  database, cloud platform, or infrastructure tool.
+- Not a skill: soft skills ("communication"), domains ("fintech",
+  "payments"), job functions ("DevOps", "machine learning"), or company names.
+- Include it only if the job uses it. "Team previously at Snowflake" is not
+  the skill Snowflake; "our data lives in Snowflake" is.
+- Empty list if none.
+
+india_evidence (fill this BEFORE india_eligible):
+- Copy the exact text, character for character, that decides eligibility.
+- Copy it from the post. Do not reword it.
+- null if nothing in the post mentions location, region or remote scope.
+
+india_eligible:
+- "no" if ANY part of the post restricts location to a country or region
+  that is not India (e.g. "US only", "must be based in the EU",
+  "authorized to work in the US"), or the job is onsite outside India.
+  A restriction anywhere in the post overrides "Remote" in the header.
+- "yes" if it allows worldwide/global/anywhere, any timezone, or names
+  India, APAC or Asia, or an Indian city, with no restriction elsewhere.
+- "unclear" for everything else, including plain "Remote" with no region.
+
+"""
+
+with open("data/raw/evalset.json", "r") as f:
+  data = json.load(f)["children"]
 
 def extract_ollama(post_text:str, model: str = "qwen3:8b") -> JobPosting: 
   response = ollama.chat(
@@ -33,10 +59,25 @@ def extract_ollama(post_text:str, model: str = "qwen3:8b") -> JobPosting:
   )
   return JobPosting.model_validate_json(response.message.content)
 
+def extract_haiku(data:str):
+   beta_message = client.beta.messages.create(
+    max_tokens=20000,
+    system=SYSTEM_PROMPT,
+    messages=[
+        {
+            "content": data,
+            "role": "user",
+        }
+    ],
+    model="claude-haiku-5-5",
+  )
+   return beta_message
+   
+
 
 if __name__ == "__main__":
-    sample = (
-        "Temporal Technologies | Multiple positions in United States - WORK FROM HOME | FULL-TIME |<p>Temporal offers an entirely new way to build scalable and reliable applications. Temporal enables developers to focus on writing important business logic, and not on managing state or worrying about the underlying infrastructure. Backed by top VC firms, we have built a team of professionals from various successful start-ups and well-known technology companies.<p>We&#x27;re looking for senior level engineers for multiple roles - <a href=\"https:&#x2F;&#x2F;www.temporal.io&#x2F;careers\" rel=\"nofollow\">https:&#x2F;&#x2F;www.temporal.io&#x2F;careers</a><p>FEATURED ROLES:<p>Senior Software Engineer, Observability"
-    )
-    job = extract_ollama(sample)
-    print(job.model_dump_json(indent=2))
+    list = []
+    for post in data: 
+       this_post=extract_ollama(json.dumps(post))
+       list.append(this_post.model_dump_json(indent=2))
+    print(list)
