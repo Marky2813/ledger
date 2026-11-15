@@ -74,7 +74,7 @@ def extract_ollama(post_text:str, model: str = "qwen3:8b") -> JobPosting:
   return JobPosting.model_validate_json(response.message.content)
 
 def extract_haiku(data:str):
-   beta_message = client.messages.create(
+   response = client.messages.create(
     max_tokens=20000,
     system=SYSTEM_PROMPT,
     messages=[
@@ -87,11 +87,11 @@ def extract_haiku(data:str):
     model="claude-haiku-5-5",
   )
    try: 
-   
-      resp = json.loads(beta_message.content[1].text)
+      text = "".join(b.text for b in response.content if b.type == "text")
+      resp = json.loads(text)
       return resp
    except json.JSONDecodeError as e:
-    print(beta_message.content[1].text)
+    print(response.text)
     print("Invalid JSON syntax:", e)
    
 

@@ -2,6 +2,7 @@
 import json
 from header import extract_headers
 
+
 with open("data/raw/evalset.json", "r") as f:
   data = json.load(f)["children"]
 
@@ -9,7 +10,7 @@ with open("../evals.json", "r") as f:
   match = json.load(f)
 
 results = extract_headers(data)
-
+print(results)
 BUCKETS = ["company", "role", "type", "mode", "salary", "url", "unclassified", "ambiguous"]
 stats = {b:{"correct": 0, "total": 0} for b in BUCKETS}
 mismatches = []
@@ -31,7 +32,10 @@ for i in range(0, len(results)):
         if(extra):
            mismatches.append([results[i]["id"], bucket, "extra", extra])
 for bucket in BUCKETS:
-   print(bucket, "percentage is", stats[bucket]["correct"]/stats[bucket]["total"]*100)
+   if(stats[bucket]["total"]):  
+    print(bucket, "percentage is", stats[bucket]["correct"]/stats[bucket]["total"]*100)
+   else:
+    print(bucket, "total is zero")
    print()
 
 print(mismatches)
