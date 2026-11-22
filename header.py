@@ -74,6 +74,10 @@ def extract_headers(data):
                   current["unclassified"].append(header[i])
                else: 
                   current["ambiguous"].append(header[i])
+            resp = extract_haiku(data[i]["text"])
+            current["skills"] = resp["skills"]
+            current["india_evidence"] = resp["india_evidence"]
+            current["india_eligible"] = resp["india_eligible"]
             extract_headers.append(current)
       else:
          extract_headers.append({

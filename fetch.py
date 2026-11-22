@@ -20,6 +20,8 @@ def fetch_threads(thread_id):
 if __name__ == "__main__":
   for t in find_hiring_threads():
     thread = fetch_threads(t["objectID"])
+    thread["objectId"] = t["objectID"]
+    print(thread)
     path = f"data/raw/{t['objectID']}.json"
     with open(path, "w") as f:
       json.dump(thread, f)

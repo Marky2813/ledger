@@ -98,5 +98,6 @@ def extract_haiku(data:str):
 
 if __name__ == "__main__":
     resp = []
-    resp.append(extract_haiku(json.dumps(data[0])))
-    print(resp)
+    print(json.dumps(data[0]["text"], indent=4))
+    resp.append(extract_haiku(json.dumps(data[0]["text"])))
+    print(resp[0])
