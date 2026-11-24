@@ -19,6 +19,7 @@ class JobPosting(BaseModel):
 schema = {
     "type": "object",
     "properties": {
+        "is_job": {"type": "boolean"},
         "skills": {"type": "array", "items": {"type": "string"}},
         "india_evidence": {"type": "string"},
         "india_eligible": {"type": "string", "enum": ["yes", "no", "unclear"]},
@@ -28,6 +29,9 @@ schema = {
 }
 
 SYSTEM_PROMPT="""You extract structured data from Hacker News "Who is Hiring" job posts.
+is_job:
+- if the given text is a job hiring post return true. If it is an employee wanting to be hired false.
+
 skills:
 - A skill is a technology: a programming language, framework, library,
   database, cloud platform, or infrastructure tool.
