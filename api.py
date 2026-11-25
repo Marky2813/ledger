@@ -9,7 +9,7 @@ app = FastAPI()
 DB = os.getenv("DATABASE_URL")
 
 @app.get("/jobs")
-def jobs(skill:str | None):
+def jobs(skill:str | None = None):
   sql = """
   SELECT id, company, role, type, mode, salary, url, india_evidence, skills
   FROM hnparser.posts 
@@ -24,3 +24,17 @@ def jobs(skill:str | None):
     params.append(skill) 
   with psycopg.connect(DB, row_factory=dict_row) as conn: 
     return conn.execute(sql, params).fetchall()
+
+
+@app.get("/skills")
+def skills():
+  sql = """
+  SELECT unnest(skills) AS skill, count(*)
+  FROM hnparser.posts
+  WHERE india_eligible='yes'
+  GROUP BY skill
+  ORDER BY count(*) DESC; 
+""" 
+  with psycopg.connect(DB, row_factory=dict_row) as conn: 
+   return conn.execute(sql).fetchall()
+
