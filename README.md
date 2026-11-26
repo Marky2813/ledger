@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📒 ledger
+# ledger
 
 **Find Hacker News "Who is Hiring?" jobs that Indian candidates can actually apply to.**
 
@@ -13,27 +13,27 @@
   <img alt="uv" src="https://img.shields.io/badge/managed%20with-uv-DE5FE9">
 </p>
 
-<sub>A learning project: fetch → parse → classify → store → serve.</sub>
+<sub>fetch → parse → classify → store → serve</sub>
 
 </div>
 
 ---
 
-## ✨ What it does
+## What it does
 
 Every month, Hacker News runs a **"Ask HN: Who is hiring?"** thread with hundreds of job posts. Many say *"Remote"* but quietly mean *"Remote (US only)"*, so finding the ones open to someone in India takes a lot of reading.
 
 **ledger** automates that:
 
-1. 📥 **Fetches** the latest hiring threads from the [HN Algolia API](https://hn.algolia.com/api).
-2. 🧩 **Parses** each post's pipe-separated header (`Company | Role | Remote | Full-time | $150k`) into structured fields using rule-based heuristics.
-3. 🇮🇳 **Classifies** each post for India eligibility (`yes` / `no` / `unclear`) and pulls out the tech stack, using an LLM that follows a strict set of rules and quotes the exact text it based its decision on.
-4. 🗄️ **Stores** everything in PostgreSQL. Re-runs skip posts already in the database.
-5. 🚀 **Serves** the India-eligible jobs through a small FastAPI service, with filtering by skill.
+1. **Fetches** the latest hiring threads from the [HN Algolia API](https://hn.algolia.com/api).
+2. **Parses** each post's pipe-separated header (`Company | Role | Remote | Full-time | $150k`) into structured fields using rule-based heuristics.
+3. **Classifies** each post for India eligibility (`yes` / `no` / `unclear`) and pulls out the tech stack, using an LLM that follows a strict set of rules and quotes the exact text it based its decision on.
+4. **Stores** everything in PostgreSQL. Re-runs skip posts already in the database.
+5. **Serves** the India-eligible jobs through a small FastAPI service, with filtering by skill.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -48,7 +48,7 @@ flowchart LR
 
 ---
 
-## 🧠 How the parsing works
+## How the parsing works
 
 ### 1. Header parsing (rules)
 
@@ -72,9 +72,9 @@ The full post text goes to **Claude Haiku**, with a JSON schema for structured o
 
 | Verdict      | When                                                                                                   |
 | ------------ | ------------------------------------------------------------------------------------------------------ |
-| ✅ `yes`     | Worldwide / global / anywhere / any timezone, or names India, APAC, Asia, or an Indian city, with no restriction elsewhere |
-| ❌ `no`      | Any restriction to a non-Indian country or region (`US only`, `must be in the EU`, `authorized to work in the US`), or onsite outside India. A restriction anywhere in the post overrides "Remote" in the header. |
-| ❔ `unclear` | Everything else, including plain "Remote" with no region                                               |
+| `yes`     | Worldwide / global / anywhere / any timezone, or names India, APAC, Asia, or an Indian city, with no restriction elsewhere |
+| `no`      | Any restriction to a non-Indian country or region (`US only`, `must be in the EU`, `authorized to work in the US`), or onsite outside India. A restriction anywhere in the post overrides "Remote" in the header. |
+| `unclear` | Everything else, including plain "Remote" with no region                                               |
 
 To make the verdict checkable, the model must first copy the **exact text** that decides it into `india_evidence`, and only then fill in `india_eligible`. The same call also returns:
 
@@ -85,7 +85,7 @@ To make the verdict checkable, the model must first copy the **exact text** that
 
 ---
 
-## 📁 Project structure
+## Project structure
 
 ```
 ledger/
@@ -106,7 +106,7 @@ ledger/
 
 ---
 
-## 🚀 Getting started
+## Getting started
 
 ### Prerequisites
 
@@ -156,7 +156,7 @@ uv run uvicorn api:app --reload
 
 Open **http://localhost:8000/docs** for the interactive Swagger UI.
 
-### 🐳 Or run it all with Docker
+### Or run it all with Docker
 
 ```bash
 docker compose up --build
@@ -166,7 +166,7 @@ This starts Postgres and the API on port `8000`.
 
 ---
 
-## 🔌 API
+## API
 
 ### `GET /jobs`
 
@@ -214,7 +214,7 @@ curl http://localhost:8000/skills
 
 ---
 
-## 🗄️ Data model
+## Data model
 
 `hnparser.posts`
 
@@ -233,7 +233,7 @@ curl http://localhost:8000/skills
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ```bash
 uv run pytest
@@ -249,14 +249,7 @@ uv run pytest
 
 ---
 
-## 🛠️ Tech stack
+## Tech stack
 
 **Python 3.15** · **FastAPI** · **PostgreSQL 17** · **psycopg 3** · **Anthropic SDK (Claude Haiku)** · **Ollama** · **Pydantic** · **pytest** · **Docker** · **uv**
 
----
-
-<div align="center">
-
-Built by **Sarthak Narula** as a learning project 🌱
-
-</div>
