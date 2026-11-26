@@ -1,4 +1,5 @@
-import json 
+import json
+from fetch import load_posts 
 from header import extract_headers
 import os
 from datetime import datetime, timezone
@@ -7,20 +8,25 @@ from psycopg.types.json import Jsonb
 from dotenv import load_dotenv
 
 load_dotenv()
-
-with open("data/raw/50338728.json", "r") as f:
-  raw_data = json.load(f)
-  
-THREAD_ID = raw_data["objectId"]
-data = raw_data["children"]
-extracted_data = extract_headers(data)
+paths = load_posts()
 pairs = []
-for i in range(0, len(data)): 
-  if(extracted_data[i]["parseable"]):
-    pairs.append((extracted_data[i], data[i]))
+print(paths)
 
+for path in paths: 
+  with open(path, "r") as f:
+    raw_data = json.load(f)
+  print(f"running for path ${path}")
+  THREAD_ID = raw_data["objectId"]
+  with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
+      done = {row[0] for row in conn.execute(
+          "SELECT id FROM hnparser.posts WHERE thread_id = %s", [raw_data["id"]]
+      )}
 
-
+  posts = [p for p in raw_data["children"] if p["id"] not in done]
+  extracted_data = extract_headers(posts)
+  for i in range(0, len(posts)): 
+    if(extracted_data[i]["parseable"]):
+      pairs.append((extracted_data[i], posts[i]))
 
 INSERT = """
 INSERT INTO hnparser.posts

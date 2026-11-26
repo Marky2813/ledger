@@ -3,7 +3,7 @@ import requests
 
 BASE = "https://hn.algolia.com/api/v1"
 
-def find_hiring_threads(n = 3 ):
+def find_hiring_threads(n = 3):
   resp = requests.get(
     f"{BASE}/search_by_date", 
     params={"tags":"story,author_whoishiring", "hitsPerPage":20}
@@ -17,12 +17,14 @@ def fetch_threads(thread_id):
   resp.raise_for_status
   return resp.json() 
 
-if __name__ == "__main__":
+def load_posts(): 
+  list = []
   for t in find_hiring_threads():
     thread = fetch_threads(t["objectID"])
     thread["objectId"] = t["objectID"]
-    print(thread)
     path = f"data/raw/{t['objectID']}.json"
     with open(path, "w") as f:
       json.dump(thread, f)
     print(f"{t['title']}: {len(thread['children'])} -> {path}")
+    list.append(path)
+  return list
