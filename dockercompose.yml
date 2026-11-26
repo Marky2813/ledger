@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: hnindia
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - hnindia-data:/var/lib/postgresql/data
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:dev@db:5432/hnindia
+    depends_on:
+      - db
+volumes:
+  hnindia-data:
