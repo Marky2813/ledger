@@ -19,7 +19,6 @@ def extract_headers(data):
    for d in data:  
       if "<p>" in d["text"] and "|" in d["text"]: 
          # extract the header and put it in the extract_headers array
-            eligibility = extract_haiku(d["text"])
             header = d["text"].split("<p>", 1)[0] or d["text"].split("\n", 1)[0]
             body = d["text"].split("<p>", 1)[1].lower() or d["text"].split("\n", 1)[1].lower()
             header = html.unescape(header)
@@ -35,9 +34,9 @@ def extract_headers(data):
          "salary": [],
          "unclassified": [],
          "ambiguous": [],
-         "skills":eligibility["skills"],
-         "india_evidence":eligibility["india_evidence"],
-         "india_eligible":eligibility["india_eligible"]
+         "skills":[],
+         "india_evidence":None ,
+         "india_eligible":None
       }
             if "href" in header[0].lower() or "http" in header[0].lower():
                current["url"].append(re.search(r'href="([^"]+)"', header[0]).group(1))

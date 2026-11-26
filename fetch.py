@@ -14,7 +14,7 @@ def find_hiring_threads(n = 3):
 
 def fetch_threads(thread_id):
   resp = requests.get(f"{BASE}/items/{thread_id}")
-  resp.raise_for_status
+  resp.raise_for_status()
   return resp.json() 
 
 def load_posts(): 

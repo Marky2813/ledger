@@ -134,8 +134,8 @@ DATABASE_URL=postgresql://postgres:dev@localhost:5433/hnindia
 ### 3. Start Postgres & create the schema
 
 ```bash
-# dockercompose.yml exposes Postgres on localhost:5433 so the host can reach it
-docker compose -f dockercompose.yml up -d db
+# Postgres is exposed on localhost:5433 so the host can reach it
+docker compose up -d db
 
 psql postgresql://postgres:dev@localhost:5433/hnindia -f schema.sql
 ```
